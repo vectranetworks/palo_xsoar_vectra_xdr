@@ -1,0 +1,353 @@
+id: 7d2b711f-be91-4574-8f8c-fb99cedbcfe3
+version: 13
+vcShouldKeepItemLegacyProdMachine: false
+name: Resolve Incident - Vectra XDR
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 03fe325c-8ba2-4e39-8613-0b10abc0edea
+    type: start
+    task:
+      id: 03fe325c-8ba2-4e39-8613-0b10abc0edea
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "2"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 50
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "2":
+    id: "2"
+    taskid: bd983fe8-86b1-4ea5-82e0-b9a72148cef6
+    type: regular
+    task:
+      id: bd983fe8-86b1-4ea5-82e0-b9a72148cef6
+      version: -1
+      name: Get Detection IDs
+      description: Describes an entity by ID.
+      script: '|||vectra-entity-describe'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "4"
+    scriptarguments:
+      entity_id:
+        simple: ${incident.vectraxdrentityid}
+      entity_type:
+        simple: ${incident.vectraxdrentitytype}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 195
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 2
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "3":
+    id: "3"
+    taskid: f6b0e055-d874-4c8f-84ad-d007a64e2f56
+    type: title
+    task:
+      id: f6b0e055-d874-4c8f-84ad-d007a64e2f56
+      version: -1
+      name: |
+        Done
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 1070
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "4":
+    id: "4"
+    taskid: 4ad0608d-def5-4789-8397-fbb9d19fb18c
+    type: collection
+    task:
+      id: 4ad0608d-def5-4789-8397-fbb9d19fb18c
+      version: -1
+      name: Request IDs
+      type: collection
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "7"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 370
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    message:
+      to: null
+      subject: null
+      body: null
+      methods: []
+      format: ""
+      bcc: null
+      cc: null
+      timings:
+        retriescount: 2
+        retriesinterval: 360
+        completeafterreplies: 1
+        completeafterv2: true
+        completeaftersla: false
+    form:
+      questions:
+      - id: "0"
+        label: ""
+        labelarg:
+          simple: Copy paste the CSV detection ID's from the output above
+        required: false
+        gridcolumns: []
+        defaultrows: []
+        type: shortText
+        options: []
+        optionsarg: []
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      title: GetDetectionIDs
+      description: ""
+      sender: ""
+      expired: false
+      totalanswers: 0
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "5":
+    id: "5"
+    taskid: 5d1f7517-de07-4ece-84f2-0eece63f9aff
+    type: regular
+    task:
+      id: 5d1f7517-de07-4ece-84f2-0eece63f9aff
+      version: -1
+      name: Resolve Assignment
+      description: Resolve an assignment in the entity.
+      script: '|||vectra-entity-assignment-resolve'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    scriptarguments:
+      assignment_id:
+        simple: ${incident.vectraxdrentityassignmentid}
+      detection_ids:
+        simple: ${GetDetectionIDs.Answers.0}
+      note:
+        simple: ${Provide Close Details.Answers.1}
+      outcome:
+        simple: ${Provide Close Details.Answers.0}
+      triage_as:
+        complex:
+          root: incident
+          accessor: id
+          transformers:
+          - operator: concat
+            args:
+              prefix:
+                value:
+                  simple: XSOAR
+              suffix: {}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 720
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "6":
+    id: "6"
+    taskid: 0a166477-58dd-4c92-8a11-881b9a718a14
+    type: regular
+    task:
+      id: 0a166477-58dd-4c92-8a11-881b9a718a14
+      version: -1
+      name: Close Incident
+      description: commands.local.cmd.close.inv
+      script: Builtin|||closeInvestigation
+      type: regular
+      iscommand: true
+      brand: Builtin
+    nexttasks:
+      '#none#':
+      - "3"
+    scriptarguments:
+      id:
+        simple: ${incident.id}
+      vectraxdrentitylastdetectiontimestamp:
+        simple: ${incident.vectraxdrentitylastdetectiontimestamp}
+      vectraxdrentitylastmodificationtimestamp:
+        simple: ${incident.vectraxdrentitylastmodificationtimestamp}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 895
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "7":
+    id: "7"
+    taskid: 7209a97d-edb5-4f05-82b9-dd8a805eb721
+    type: collection
+    task:
+      id: 7209a97d-edb5-4f05-82b9-dd8a805eb721
+      version: -1
+      name: Request Close Data
+      type: collection
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "5"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 545
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    message:
+      to: null
+      subject: null
+      body: null
+      methods: []
+      format: ""
+      bcc: null
+      cc: null
+      timings:
+        retriescount: 2
+        retriesinterval: 360
+        completeafterreplies: 1
+        completeafterv2: true
+        completeaftersla: false
+    form:
+      questions:
+      - id: "0"
+        label: ""
+        labelarg:
+          simple: Select Close Reason
+        required: true
+        gridcolumns: []
+        defaultrows: []
+        type: singleSelect
+        options: []
+        optionsarg:
+        - simple: Benign True Positive
+        - simple: Malicious True Positive
+        - simple: False Positive
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      - id: "1"
+        label: ""
+        labelarg:
+          simple: Enter Close Notes
+        required: false
+        gridcolumns: []
+        defaultrows: []
+        type: shortText
+        options: []
+        optionsarg: []
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      title: Provide Close Details
+      description: ""
+      sender: ""
+      expired: false
+      totalanswers: 0
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 1085,
+        "width": 380,
+        "x": 50,
+        "y": 50
+      }
+    }
+  }
+inputs: []
+outputs: []
+quiet: true
