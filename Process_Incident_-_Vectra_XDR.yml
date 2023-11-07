@@ -1,0 +1,325 @@
+id: Process Incident - Vectra XDR
+version: 2
+vcShouldKeepItemLegacyProdMachine: false
+name: Process Incident - Vectra XDR
+description: This playbook is used to initiate the processing of an incident. This
+  playbook runs when a pending incident is selected for investigation. It will change
+  the state from pending to active and it will list the available users in Vectra
+  and request the user ID to use for assignment. Once the data collection is complete,
+  it will call the Dispatch Incident - Vectra XDR playbook.
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 7d8532df-87b1-4991-8cab-77325726ac82
+    type: start
+    task:
+      id: 7d8532df-87b1-4991-8cab-77325726ac82
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "1"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 50
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "1":
+    id: "1"
+    taskid: cd6862a7-64d3-47fe-8d41-cefc4fe51d83
+    type: playbook
+    task:
+      id: cd6862a7-64d3-47fe-8d41-cefc4fe51d83
+      version: -1
+      name: Add Notes In The Layout - Vectra XDR
+      description: This playbook will add notes in the incident layout.
+      playbookName: Add Notes In The Layout - Vectra XDR
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "8"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 195
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "4":
+    id: "4"
+    taskid: 7320f71c-410a-4d5b-8d5d-cea2df46ba62
+    type: title
+    task:
+      id: 7320f71c-410a-4d5b-8d5d-cea2df46ba62
+      version: -1
+      name: Done
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 1245
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "7":
+    id: "7"
+    taskid: 2a6699f3-0677-44a6-87e8-6f8c20008a1a
+    type: collection
+    task:
+      id: 2a6699f3-0677-44a6-87e8-6f8c20008a1a
+      version: -1
+      name: Get UserID from the user.
+      description: Get UserID from the user.
+      type: collection
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "11"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 720
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    message:
+      to: null
+      subject: null
+      body: null
+      methods: []
+      format: ""
+      bcc: null
+      cc: null
+      timings:
+        retriescount: 2
+        retriesinterval: 360
+        completeafterreplies: 1
+        completeafterv2: true
+        completeaftersla: false
+    form:
+      questions:
+      - id: "0"
+        label: ""
+        labelarg:
+          simple: 'Enter User ID for Assignment: '
+        required: false
+        gridcolumns: []
+        defaultrows: []
+        type: shortText
+        options: []
+        optionsarg: []
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      title: GetUserID
+      description: ""
+      sender: ""
+      expired: false
+      totalanswers: 0
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "8":
+    id: "8"
+    taskid: d1e6de82-f0bb-4bda-845f-f2da7369fcb1
+    type: regular
+    task:
+      id: d1e6de82-f0bb-4bda-845f-f2da7369fcb1
+      version: -1
+      name: Delete the context of GetUserID
+      description: |-
+        Delete field from context.
+
+        This automation runs using the default Limited User role, unless you explicitly change the permissions.
+        For more information, see the section about permissions here:
+        https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/6.10/Cortex-XSOAR-Administrator-Guide/Automations
+      scriptName: DeleteContext
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "9"
+    scriptarguments:
+      key:
+        simple: GetUserID
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 370
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "9":
+    id: "9"
+    taskid: 6257164b-7579-4c5c-8be2-3b56c764bc61
+    type: regular
+    task:
+      id: 6257164b-7579-4c5c-8be2-3b56c764bc61
+      version: -1
+      name: List Available Users for Assignment
+      description: Returns a list of users.
+      script: '|||vectra-user-list'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "7"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 545
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "10":
+    id: "10"
+    taskid: 56ab3c35-972f-421b-8df6-0cea28fa9aab
+    type: playbook
+    task:
+      id: 56ab3c35-972f-421b-8df6-0cea28fa9aab
+      version: -1
+      name: Dispatch Incident - Vectra XDR
+      playbookName: Dispatch Incident - Vectra XDR
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "4"
+    scriptarguments:
+      UserID:
+        complex:
+          root: GetUserID.Answers
+          accessor: "0"
+          transformers:
+          - operator: LastArrayElement
+    separatecontext: true
+    continueonerrortype: ""
+    loop:
+      iscommand: false
+      exitCondition: ""
+      wait: 1
+      max: 0
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 1070
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "11":
+    id: "11"
+    taskid: 6824b27d-9599-4448-8c4e-081e8a63d9e9
+    type: playbook
+    task:
+      id: 6824b27d-9599-4448-8c4e-081e8a63d9e9
+      version: -1
+      name: Add Note - Vectra XDR
+      playbookName: Add Note - Vectra XDR
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "10"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 895
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 1260,
+        "width": 380,
+        "x": 50,
+        "y": 50
+      }
+    }
+  }
+inputs: []
+outputs: []

@@ -1,28 +1,31 @@
-id: 7d2b711f-be91-4574-8f8c-fb99cedbcfe3
-version: 14
+id: a265dc00-9cc1-46de-8c4c-4a70203f5277
+version: 9
 vcShouldKeepItemLegacyProdMachine: false
-name: Resolve Incident - Vectra XDR
-description: This playbook is intended to be run from inside an incident. It will
-  extract the detection ID's from the entity and display them. The operator can copy
-  all detections id's which are in comma separated format of can include some or none.  The
-  detection id's provided will be triaged on the Vectra platform. The default close
-  reasons are provided in a pick list and the note is intended to be a simple tag
-  that is applied as labels for the detections being triaged.
+name: Quick Group - Vectra XDR
+description: This playbook can be run outside of an incident if required. This playbook
+  prompts the user to select the type of group to work with (ip, domain, host, account)
+  and then requests the data  (one element at a time) the user wishes to add to the
+  group.  The playbook will list the available groups of the type selected that contain
+  the coded text in the group description field. The default value is XSOAR so only
+  groups with xsoar in the description will be displayed. The operator must select
+  a group id and the data provided will be added to that group.  There is no data
+  validation so the operator must ensure that the correct data is added to the appropriate
+  group (ex. add IP addresses to the IP group only).
 starttaskid: "0"
 tasks:
   "0":
     id: "0"
-    taskid: 03fe325c-8ba2-4e39-8613-0b10abc0edea
+    taskid: 6ddbf07d-1153-4468-8989-d931b6f4cfc0
     type: start
     task:
-      id: 03fe325c-8ba2-4e39-8613-0b10abc0edea
+      id: 6ddbf07d-1153-4468-8989-d931b6f4cfc0
       version: -1
       name: ""
       iscommand: false
       brand: ""
     nexttasks:
       '#none#':
-      - "2"
+      - "6"
     separatecontext: false
     continueonerrortype: ""
     view: |-
@@ -39,52 +42,220 @@ tasks:
     quietmode: 0
     isoversize: false
     isautoswitchedtoquietmode: false
-  "2":
-    id: "2"
-    taskid: bd983fe8-86b1-4ea5-82e0-b9a72148cef6
-    type: regular
+  "1":
+    id: "1"
+    taskid: cfc12683-8c48-42fd-8052-15f81e527253
+    type: collection
     task:
-      id: bd983fe8-86b1-4ea5-82e0-b9a72148cef6
+      id: cfc12683-8c48-42fd-8052-15f81e527253
       version: -1
-      name: Get Detection IDs
-      description: Describes an entity by ID.
-      script: '|||vectra-entity-describe'
-      type: regular
-      iscommand: true
+      name: Get Group Member Input
+      type: collection
+      iscommand: false
       brand: ""
     nexttasks:
       '#none#':
-      - "4"
-    scriptarguments:
-      entity_id:
-        simple: ${incident.vectraxdrentityid}
-      entity_type:
-        simple: ${incident.vectraxdrentitytype}
+      - "2"
     separatecontext: false
     continueonerrortype: ""
     view: |-
       {
         "position": {
           "x": 50,
-          "y": 195
+          "y": 370
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    message:
+      to: null
+      subject: null
+      body:
+        simple: Please enter group member details
+      methods: []
+      format: ""
+      bcc: null
+      cc: null
+      timings:
+        retriescount: 2
+        retriesinterval: 360
+        completeafterreplies: 1
+        completeafterv2: true
+        completeaftersla: false
+    form:
+      questions:
+      - id: "0"
+        label: ""
+        labelarg:
+          simple: Please enter group member details
+        required: false
+        gridcolumns: []
+        defaultrows: []
+        type: shortText
+        options: []
+        optionsarg: []
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      title: Please enter group member details
+      description: ""
+      sender: ""
+      expired: false
+      totalanswers: 0
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "2":
+    id: "2"
+    taskid: ac949c28-9ef0-4dc0-8468-a0caa3333c8f
+    type: regular
+    task:
+      id: ac949c28-9ef0-4dc0-8468-a0caa3333c8f
+      version: -1
+      name: List Groups
+      description: Returns a list of all groups.
+      script: '|||vectra-group-list'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "3"
+    scriptarguments:
+      description:
+        simple: xsoar
+      group_type:
+        simple: ${What type of group do you want to work with?.Answers.0}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 545
         }
       }
     note: false
     timertriggers: []
     ignoreworker: false
     skipunavailable: false
-    quietmode: 2
+    quietmode: 0
     isoversize: false
     isautoswitchedtoquietmode: false
   "3":
     id: "3"
-    taskid: f6b0e055-d874-4c8f-84ad-d007a64e2f56
+    taskid: 5ac5a7b8-018d-48b6-856f-26353346add1
+    type: collection
+    task:
+      id: 5ac5a7b8-018d-48b6-856f-26353346add1
+      version: -1
+      name: Get Group
+      type: collection
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "4"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 720
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    message:
+      to: null
+      subject: null
+      body:
+        simple: Enter Group ID to Update
+      methods: []
+      format: ""
+      bcc: null
+      cc: null
+      timings:
+        retriescount: 2
+        retriesinterval: 360
+        completeafterreplies: 1
+        completeafterv2: true
+        completeaftersla: false
+    form:
+      questions:
+      - id: "0"
+        label: ""
+        labelarg:
+          simple: Enter Group ID to Update
+        required: false
+        gridcolumns: []
+        defaultrows: []
+        type: shortText
+        options: []
+        optionsarg: []
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      title: Enter Group ID to Update
+      description: ""
+      sender: ""
+      expired: false
+      totalanswers: 0
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "4":
+    id: "4"
+    taskid: 275e62d2-19c6-44d8-8e59-658c63ee3c85
+    type: regular
+    task:
+      id: 275e62d2-19c6-44d8-8e59-658c63ee3c85
+      version: -1
+      name: Add to Group
+      description: Assign members to the specified group.
+      script: '|||vectra-group-assign'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "5"
+    scriptarguments:
+      group_id:
+        simple: ${Enter Group ID to Update.Answers.0}
+      members:
+        simple: ${Please enter group member details.Answers.0}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 895
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "5":
+    id: "5"
+    taskid: 21022a0d-c02d-423e-8907-5a97cb46cf02
     type: title
     task:
-      id: f6b0e055-d874-4c8f-84ad-d007a64e2f56
+      id: 21022a0d-c02d-423e-8907-5a97cb46cf02
       version: -1
-      name: |
-        Done
+      name: End
       type: title
       iscommand: false
       brand: ""
@@ -104,183 +275,27 @@ tasks:
     quietmode: 0
     isoversize: false
     isautoswitchedtoquietmode: false
-  "4":
-    id: "4"
-    taskid: 4ad0608d-def5-4789-8397-fbb9d19fb18c
-    type: collection
-    task:
-      id: 4ad0608d-def5-4789-8397-fbb9d19fb18c
-      version: -1
-      name: Request IDs
-      type: collection
-      iscommand: false
-      brand: ""
-    nexttasks:
-      '#none#':
-      - "7"
-    separatecontext: false
-    continueonerrortype: ""
-    view: |-
-      {
-        "position": {
-          "x": 50,
-          "y": 370
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    message:
-      to: null
-      subject: null
-      body: null
-      methods: []
-      format: ""
-      bcc: null
-      cc: null
-      timings:
-        retriescount: 2
-        retriesinterval: 360
-        completeafterreplies: 1
-        completeafterv2: true
-        completeaftersla: false
-    form:
-      questions:
-      - id: "0"
-        label: ""
-        labelarg:
-          simple: Copy paste the CSV detection ID's from the output above
-        required: false
-        gridcolumns: []
-        defaultrows: []
-        type: shortText
-        options: []
-        optionsarg: []
-        fieldassociated: ""
-        placeholder: ""
-        tooltip: ""
-        readonly: false
-      title: GetDetectionIDs
-      description: ""
-      sender: ""
-      expired: false
-      totalanswers: 0
-    skipunavailable: false
-    quietmode: 0
-    isoversize: false
-    isautoswitchedtoquietmode: false
-  "5":
-    id: "5"
-    taskid: 5d1f7517-de07-4ece-84f2-0eece63f9aff
-    type: regular
-    task:
-      id: 5d1f7517-de07-4ece-84f2-0eece63f9aff
-      version: -1
-      name: Resolve Assignment
-      description: Resolve an assignment in the entity.
-      script: '|||vectra-entity-assignment-resolve'
-      type: regular
-      iscommand: true
-      brand: ""
-    nexttasks:
-      '#none#':
-      - "6"
-    scriptarguments:
-      assignment_id:
-        simple: ${incident.vectraxdrentityassignmentid}
-      detection_ids:
-        simple: ${GetDetectionIDs.Answers.0}
-      note:
-        simple: ${Provide Close Details.Answers.1}
-      outcome:
-        simple: ${Provide Close Details.Answers.0}
-      triage_as:
-        complex:
-          root: incident
-          accessor: id
-          transformers:
-          - operator: concat
-            args:
-              prefix:
-                value:
-                  simple: XSOAR
-              suffix: {}
-    separatecontext: false
-    continueonerrortype: ""
-    view: |-
-      {
-        "position": {
-          "x": 50,
-          "y": 720
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-    isoversize: false
-    isautoswitchedtoquietmode: false
   "6":
     id: "6"
-    taskid: 0a166477-58dd-4c92-8a11-881b9a718a14
-    type: regular
-    task:
-      id: 0a166477-58dd-4c92-8a11-881b9a718a14
-      version: -1
-      name: Close Incident
-      description: commands.local.cmd.close.inv
-      script: Builtin|||closeInvestigation
-      type: regular
-      iscommand: true
-      brand: Builtin
-    nexttasks:
-      '#none#':
-      - "3"
-    scriptarguments:
-      id:
-        simple: ${incident.id}
-      vectraxdrentitylastdetectiontimestamp:
-        simple: ${incident.vectraxdrentitylastdetectiontimestamp}
-      vectraxdrentitylastmodificationtimestamp:
-        simple: ${incident.vectraxdrentitylastmodificationtimestamp}
-    separatecontext: false
-    continueonerrortype: ""
-    view: |-
-      {
-        "position": {
-          "x": 50,
-          "y": 895
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-    isoversize: false
-    isautoswitchedtoquietmode: false
-  "7":
-    id: "7"
-    taskid: 7209a97d-edb5-4f05-82b9-dd8a805eb721
+    taskid: 704b2850-8094-49be-8631-845edcb22d31
     type: collection
     task:
-      id: 7209a97d-edb5-4f05-82b9-dd8a805eb721
+      id: 704b2850-8094-49be-8631-845edcb22d31
       version: -1
-      name: Request Close Data
+      name: Select Group Type
       type: collection
       iscommand: false
       brand: ""
     nexttasks:
       '#none#':
-      - "5"
+      - "1"
     separatecontext: false
     continueonerrortype: ""
     view: |-
       {
         "position": {
           "x": 50,
-          "y": 545
+          "y": 195
         }
       }
     note: false
@@ -289,7 +304,8 @@ tasks:
     message:
       to: null
       subject: null
-      body: null
+      body:
+        simple: What type of group do you want to work with?
       methods: []
       format: ""
       bcc: null
@@ -305,35 +321,22 @@ tasks:
       - id: "0"
         label: ""
         labelarg:
-          simple: Select Close Reason
-        required: true
+          simple: What type of group do you want to work with?
+        required: false
         gridcolumns: []
         defaultrows: []
         type: singleSelect
         options: []
         optionsarg:
-        - simple: Benign True Positive
-        - simple: Malicious True Positive
-        - simple: False Positive
+        - simple: IP
+        - simple: Host
+        - simple: Domain
+        - simple: Account
         fieldassociated: ""
         placeholder: ""
         tooltip: ""
         readonly: false
-      - id: "1"
-        label: ""
-        labelarg:
-          simple: Enter Close Notes
-        required: false
-        gridcolumns: []
-        defaultrows: []
-        type: shortText
-        options: []
-        optionsarg: []
-        fieldassociated: ""
-        placeholder: ""
-        tooltip: ""
-        readonly: false
-      title: Provide Close Details
+      title: What type of group do you want to work with?
       description: ""
       sender: ""
       expired: false
@@ -356,4 +359,3 @@ view: |-
   }
 inputs: []
 outputs: []
-quiet: true
