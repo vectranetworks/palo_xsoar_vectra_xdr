@@ -1,0 +1,281 @@
+id: 84c7cf6e-c1ac-4113-86d2-82781f348d3e
+version: 5
+vcShouldKeepItemLegacyProdMachine: false
+name: Source IP IOC Lookup - Vectra XDR
+description: This playbook is intended to be run from inside an O365 or AWS based
+  incident. It will extract the source IP from the account entity and pass that to
+  the IP Reputation action to conduct an IOC lookup on the provided IP address. This
+  requires IP Reputation to be configured in XSOAR. This playbook can be extended
+  as needed to extract additional attributes and pass on to other threat intelligence
+  lookup integrations.
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 8f32e64e-3b1c-426c-8727-8ec1325a5474
+    type: start
+    task:
+      id: 8f32e64e-3b1c-426c-8727-8ec1325a5474
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "1"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 480,
+          "y": 50
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "1":
+    id: "1"
+    taskid: 0bc6e7c1-de2b-4473-8f5b-ffbf1a8748ea
+    type: regular
+    task:
+      id: 0bc6e7c1-de2b-4473-8f5b-ffbf1a8748ea
+      version: -1
+      name: Describe Entity
+      description: Describes an entity by ID.
+      script: '|||vectra-entity-describe'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "3"
+    scriptarguments:
+      entity_id:
+        simple: ${incident.vectraxdrentityid}
+      entity_type:
+        simple: ${incident.vectraxdrentitytype}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 480,
+          "y": 195
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "2":
+    id: "2"
+    taskid: 59f04e5e-51b7-4b97-8e6b-d8be59083047
+    type: condition
+    task:
+      id: 59f04e5e-51b7-4b97-8e6b-d8be59083047
+      version: -1
+      name: Process Entity
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#default#':
+      - "5"
+      AWS:
+      - "4"
+      O365:
+      - "6"
+    separatecontext: false
+    conditions:
+    - label: AWS
+      condition:
+      - - operator: containsGeneral
+          left:
+            value:
+              simple: Vectra.Entity.name
+            iscontext: true
+          right:
+            value:
+              simple: AWS
+    - label: O365
+      condition:
+      - - operator: containsGeneral
+          left:
+            value:
+              simple: Vectra.Entity.name
+            iscontext: true
+          right:
+            value:
+              simple: O365
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 480,
+          "y": 545
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "3":
+    id: "3"
+    taskid: 2da6ceeb-2475-4b91-87b0-a7bff189b2d6
+    type: regular
+    task:
+      id: 2da6ceeb-2475-4b91-87b0-a7bff189b2d6
+      version: -1
+      name: List Detections
+      description: Returns a list of detections for a specified entity.
+      script: '|||vectra-entity-detection-list'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "2"
+    scriptarguments:
+      entity_id:
+        simple: ${Vectra.Entity.id}
+      entity_type:
+        simple: ${Vectra.Entity.type}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 480,
+          "y": 370
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "4":
+    id: "4"
+    taskid: 55fc3c11-e459-4c46-8df4-32b015f64441
+    type: regular
+    task:
+      id: 55fc3c11-e459-4c46-8df4-32b015f64441
+      version: -1
+      name: Lookup IP
+      description: A context script for IP entities.
+      scriptName: IPReputation
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "5"
+    scriptarguments:
+      ip:
+        simple: ${Vectra.Entity.Detections.src_ip}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 250,
+          "y": 720
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "5":
+    id: "5"
+    taskid: 9aabfc77-c713-4dce-8802-2471ed45c609
+    type: title
+    task:
+      id: 9aabfc77-c713-4dce-8802-2471ed45c609
+      version: -1
+      name: Done
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 480,
+          "y": 920
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "6":
+    id: "6"
+    taskid: f3598dd9-a763-45f0-8f9d-afc6075afe68
+    type: regular
+    task:
+      id: f3598dd9-a763-45f0-8f9d-afc6075afe68
+      version: -1
+      name: Lookup IP
+      description: A context script for IP entities.
+      scriptName: IPReputation
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "5"
+    scriptarguments:
+      ip:
+        simple: ${Vectra.Entity.Detections.src_ip}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 710,
+          "y": 720
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 935,
+        "width": 840,
+        "x": 250,
+        "y": 50
+      }
+    }
+  }
+inputs: []
+outputs: []

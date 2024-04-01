@@ -1,0 +1,284 @@
+id: 1ed530aa-af86-4600-8c9f-b2bee559226e
+version: 2
+vcShouldKeepItemLegacyProdMachine: false
+name: Vectra - Superna Critical Data Protection
+description: |-
+  When run, this playbook will identify if the entity is presenting an attack profile that can put critical data at risk. When the attack profile is detected the Superna Zero Trust Snapshot sub-playbook is run to initiate a snapshot for all critical data.
+
+  Requires: Superna Zero Trust Snapshot playbook
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 18f71487-3ab6-4831-88ce-ba6884a5bba5
+    type: start
+    task:
+      id: 18f71487-3ab6-4831-88ce-ba6884a5bba5
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "1"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 480,
+          "y": 50
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "1":
+    id: "1"
+    taskid: e0fe1c60-57f0-44e0-8455-307cbc56b993
+    type: condition
+    task:
+      id: e0fe1c60-57f0-44e0-8455-307cbc56b993
+      version: -1
+      name: Evaluate Attack Profile
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#default#':
+      - "6"
+      External Adversary:
+      - "7"
+      'Insider Threat: Admin':
+      - "8"
+      'Insider Threat: User':
+      - "10"
+      Ransomware:
+      - "9"
+    separatecontext: false
+    conditions:
+    - label: External Adversary
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: External Adversary
+    - label: 'Insider Threat: Admin'
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: 'Insider Threat: Admin'
+    - label: 'Insider Threat: User'
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: 'Insider Threat: User'
+    - label: Ransomware
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: Ransomware
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 480,
+          "y": 195
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "6":
+    id: "6"
+    taskid: 9ac1fa79-325f-45c5-8bda-e43a285aee3e
+    type: title
+    task:
+      id: 9ac1fa79-325f-45c5-8bda-e43a285aee3e
+      version: -1
+      name: End
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 470,
+          "y": 770
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "7":
+    id: "7"
+    taskid: dd01c18c-f6da-4f1e-8331-0d44d2bad0ee
+    type: playbook
+    task:
+      id: dd01c18c-f6da-4f1e-8331-0d44d2bad0ee
+      version: -1
+      name: Superna Zero Trust Snapshot
+      playbookName: Superna Zero Trust Snapshot
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": -210,
+          "y": 380
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "8":
+    id: "8"
+    taskid: 3db1b658-2da3-47b7-8fbf-0f008df72956
+    type: playbook
+    task:
+      id: 3db1b658-2da3-47b7-8fbf-0f008df72956
+      version: -1
+      name: Superna Zero Trust Snapshot
+      playbookName: Superna Zero Trust Snapshot
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 190,
+          "y": 430
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "9":
+    id: "9"
+    taskid: b940a2d9-a313-4ff5-8342-b1fe5d0f56ff
+    type: playbook
+    task:
+      id: b940a2d9-a313-4ff5-8342-b1fe5d0f56ff
+      version: -1
+      name: Superna Zero Trust Snapshot
+      playbookName: Superna Zero Trust Snapshot
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1150,
+          "y": 380
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "10":
+    id: "10"
+    taskid: cfe49e9a-784f-49ab-89a9-be3261c1efcd
+    type: playbook
+    task:
+      id: cfe49e9a-784f-49ab-89a9-be3261c1efcd
+      version: -1
+      name: Superna Zero Trust Snapshot
+      playbookName: Superna Zero Trust Snapshot
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 750,
+          "y": 430
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 785,
+        "width": 1740,
+        "x": -210,
+        "y": 50
+      }
+    }
+  }
+inputs: []
+outputs: []
+sourceplaybookid: 24476a0c-a0c0-4869-818a-12eedae5b17b

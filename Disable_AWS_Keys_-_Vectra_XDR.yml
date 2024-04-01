@@ -1,0 +1,487 @@
+id: 3e6e18f9-455f-4b08-8227-50381ace5bb0
+version: 28
+vcShouldKeepItemLegacyProdMachine: false
+name: Disable AWS Keys - Vectra XDR
+description: This playbook operates on Vectra AWS entities. It will extract the AWS
+  user, lookup the AWS keys, determine if they are active and prompt the user if they
+  want to disable the active keys to mitigate the threat. IMPORTANT - for safety reasons
+  the default action is to set key status to 'active'. When ready to insert into production,
+  modify Disable Access Key(s) node and change status from 'active' to 'inactive'
+  and save.
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 681af045-1621-4165-8107-5ae62ad4cb96
+    type: start
+    task:
+      id: 681af045-1621-4165-8107-5ae62ad4cb96
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "1"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 50
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "1":
+    id: "1"
+    taskid: ac6de9b2-a26a-4ba1-85cb-d10efa5307c6
+    type: regular
+    task:
+      id: ac6de9b2-a26a-4ba1-85cb-d10efa5307c6
+      version: -1
+      name: Describe Entity
+      description: Describes an entity by ID.
+      script: '|||vectra-entity-describe'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "2"
+    scriptarguments:
+      entity_id:
+        simple: ${incident.vectraxdrentityid}
+      entity_type:
+        simple: ${incident.vectraxdrentitytype}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 195
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "2":
+    id: "2"
+    taskid: ee3dee9b-b0ee-49c3-84fc-4f8f2adb6c0f
+    type: condition
+    task:
+      id: ee3dee9b-b0ee-49c3-84fc-4f8f2adb6c0f
+      version: -1
+      name: Is this an AWS Entity?
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#default#':
+      - "11"
+      "yes":
+      - "3"
+    separatecontext: false
+    conditions:
+    - label: "yes"
+      condition:
+      - - operator: containsGeneral
+          left:
+            value:
+              simple: Vectra.Entity.name
+            iscontext: true
+          right:
+            value:
+              simple: AWS
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 370
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "3":
+    id: "3"
+    taskid: 3fa7289a-3159-4692-8e81-ac514b546e41
+    type: regular
+    task:
+      id: 3fa7289a-3159-4692-8e81-ac514b546e41
+      version: -1
+      name: Get AWS IAM User
+      description: Retrieves information about the specified IAM user, including the
+        user's creation date, path, unique ID, and ARN.
+      script: '|||aws-iam-get-user'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    scriptarguments:
+      userName:
+        complex:
+          root: incident
+          accessor: vectraxdrentityname
+          transformers:
+          - operator: Cut
+            args:
+              delimiter:
+                value:
+                  simple: /
+              fields:
+                value:
+                  simple: "0"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 162.5,
+          "y": 545
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "6":
+    id: "6"
+    taskid: a81fbb89-ff33-40f5-8869-234bbd31d80a
+    type: regular
+    task:
+      id: a81fbb89-ff33-40f5-8869-234bbd31d80a
+      version: -1
+      name: Get Access Keys for User
+      description: Returns information about the access key IDs associated with the
+        specified IAM user.
+      script: AWS - IAM|||aws-iam-list-access-keys-for-user
+      type: regular
+      iscommand: true
+      brand: AWS - IAM
+    nexttasks:
+      '#none#':
+      - "7"
+    scriptarguments:
+      userName:
+        simple: ${AWS.IAM.Users.UserName}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 162.5,
+          "y": 720
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "7":
+    id: "7"
+    taskid: ff10b098-8123-45b0-87eb-9062256fd4de
+    type: condition
+    task:
+      id: ff10b098-8123-45b0-87eb-9062256fd4de
+      version: -1
+      name: Check if Access Key is Active
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      "yes":
+      - "8"
+    separatecontext: false
+    conditions:
+    - label: "yes"
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: AWS.IAM.Users.AccessKeys.Status
+            iscontext: true
+          right:
+            value:
+              simple: Active
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 162.5,
+          "y": 895
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "8":
+    id: "8"
+    taskid: 93bbf491-1331-4d2c-88f5-f98c4b8f33a5
+    type: collection
+    task:
+      id: 93bbf491-1331-4d2c-88f5-f98c4b8f33a5
+      version: -1
+      name: Request to Disable Access Key
+      type: collection
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "9"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 162.5,
+          "y": 1070
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    message:
+      to: null
+      subject: null
+      body:
+        simple: Approval Request
+      methods: []
+      format: ""
+      bcc: null
+      cc: null
+      timings:
+        retriescount: 2
+        retriesinterval: 360
+        completeafterreplies: 1
+        completeafterv2: true
+        completeaftersla: false
+    form:
+      questions:
+      - id: "0"
+        label: ""
+        labelarg:
+          simple: Would you like to disable the access key?
+        required: true
+        gridcolumns: []
+        defaultrows: []
+        type: singleSelect
+        options: []
+        optionsarg:
+        - simple: "Yes"
+        - simple: "No"
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      title: Approval Request
+      description: ""
+      sender: ""
+      expired: false
+      totalanswers: 0
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "9":
+    id: "9"
+    taskid: 239c8653-a4fd-4bac-845d-ae4b443f3fe2
+    type: condition
+    task:
+      id: 239c8653-a4fd-4bac-845d-ae4b443f3fe2
+      version: -1
+      name: Process Approval
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      Rejected:
+      - "11"
+      "Yes":
+      - "10"
+    separatecontext: false
+    conditions:
+    - label: "Yes"
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: Approval Request.Answers.0
+            iscontext: true
+          right:
+            value:
+              simple: "Yes"
+    - label: "No"
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: Approval Request.Answers.0
+            iscontext: true
+          right:
+            value:
+              simple: "No"
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 162.5,
+          "y": 1245
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "10":
+    id: "10"
+    taskid: 6d7a8efa-c6b5-4b67-8518-3193ac347ead
+    type: regular
+    task:
+      id: 6d7a8efa-c6b5-4b67-8518-3193ac347ead
+      version: -1
+      name: Disable Access Key(s)
+      description: Changes the status of the specified access key from Active to Inactive,
+        or vice versa. This operation can be used to disable a user's key as part
+        of a key rotation workflow.
+      script: '|||aws-iam-update-access-key'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "12"
+    scriptarguments:
+      accessKeyId:
+        simple: ${AWS.IAM.Users.AccessKeys.AccessKeyId}
+      status:
+        simple: Active
+      userName:
+        simple: ${AWS.IAM.Users.UserName}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 275,
+          "y": 1420
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "11":
+    id: "11"
+    taskid: 8cba04b5-77dd-4767-8059-25440c643324
+    type: title
+    task:
+      id: 8cba04b5-77dd-4767-8059-25440c643324
+      version: -1
+      name: End
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": -105,
+          "y": 1780
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "12":
+    id: "12"
+    taskid: 4b5c2636-614e-4b83-8ded-c720f59bbc66
+    type: regular
+    task:
+      id: 4b5c2636-614e-4b83-8ded-c720f59bbc66
+      version: -1
+      name: Add Work Note
+      description: Add a note to the entity.
+      script: '|||vectra-entity-note-add'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "11"
+    scriptarguments:
+      entity_id:
+        simple: ${Vectra.Entity.id}
+      entity_type:
+        simple: ${incident.vectraxdrentitytype}
+      note:
+        simple: This AWS entity has had their AWS KEYS disabled for remediation purposes.
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 275,
+          "y": 1595
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 1795,
+        "width": 760,
+        "x": -105,
+        "y": 50
+      }
+    }
+  }
+inputs: []
+outputs: []

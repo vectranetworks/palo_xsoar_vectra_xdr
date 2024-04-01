@@ -1,0 +1,129 @@
+id: 561513b5-7126-4ae7-8801-dc093df556b9
+version: 6
+vcShouldKeepItemLegacyProdMachine: false
+name: Superna Zero Trust Snapshot
+description: |-
+  This playbook is called from Vectra - Superna Critical Data Protection and is used to create an immutable snapshot to protect critical data.
+
+  USAGE: before using this playbook, input a valid URL and API_KEY
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 7cedeba0-ccfc-4ea7-8dc5-6f7d3b74a34b
+    type: start
+    task:
+      id: 7cedeba0-ccfc-4ea7-8dc5-6f7d3b74a34b
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "1"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 450,
+          "y": 50
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "1":
+    id: "1"
+    taskid: 7a02ec47-92cd-4222-803c-b02bc7bda313
+    type: regular
+    task:
+      id: 7a02ec47-92cd-4222-803c-b02bc7bda313
+      version: -1
+      name: Initiate Snapshot
+      description: Sends a HTTP request with advanced capabilities
+      scriptName: HttpV2
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "2"
+    scriptarguments:
+      headers:
+        keyvalue:
+        - key: content-type
+          value:
+            simple: application/json
+        - key: accept
+          value:
+            simple: application/json
+        - key: api_key
+          value:
+            simple: igls-1hp9n7vg4uu61k4t0r2np9a8qpf5is7bc11bacs11gf2ad9lnoc1
+      method:
+        simple: POST
+      url:
+        simple: https://172.31.1.102/sera/v2/ransomware/criticalpaths
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 450,
+          "y": 280
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "2":
+    id: "2"
+    taskid: 80ea896d-703e-4e27-83b7-2a17fd065a6e
+    type: title
+    task:
+      id: 80ea896d-703e-4e27-83b7-2a17fd065a6e
+      version: -1
+      name: Done
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 450,
+          "y": 570
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 585,
+        "width": 380,
+        "x": 450,
+        "y": 50
+      }
+    }
+  }
+inputs: []
+outputs: []
+quiet: true

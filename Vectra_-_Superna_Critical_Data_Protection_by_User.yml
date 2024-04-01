@@ -1,0 +1,374 @@
+id: 2f13a642-68a1-4d1b-8dc5-0efa09deeb5f
+version: 3
+vcShouldKeepItemLegacyProdMachine: false
+name: Vectra - Superna Critical Data Protection by User
+description: |-
+  When run, this playbook will identify if the entity is presenting an attack profile that can put critical data at risk. When the attack profile is detected an operator is prompted to provide a username.  The username is passed into Superna Zero Trust User Lockout sub-playbook is run to initiate surgical protection.
+
+  Requires: Superna Zero Trust User Lockout
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 18f71487-3ab6-4831-88ce-ba6884a5bba5
+    type: start
+    task:
+      id: 18f71487-3ab6-4831-88ce-ba6884a5bba5
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "11"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 470,
+          "y": -130
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "1":
+    id: "1"
+    taskid: e0fe1c60-57f0-44e0-8455-307cbc56b993
+    type: condition
+    task:
+      id: e0fe1c60-57f0-44e0-8455-307cbc56b993
+      version: -1
+      name: Evaluate Attack Profile
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#default#':
+      - "6"
+      External Adversary:
+      - "12"
+      'Insider Threat: Admin':
+      - "17"
+      'Insider Threat: User':
+      - "16"
+      Ransomware:
+      - "15"
+    separatecontext: false
+    conditions:
+    - label: External Adversary
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: External Adversary
+    - label: 'Insider Threat: Admin'
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: 'Insider Threat: Admin'
+    - label: 'Insider Threat: User'
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: 'Insider Threat: User'
+    - label: Ransomware
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: incident.vectraxdrentityattackprofile
+            iscontext: true
+          right:
+            value:
+              simple: Ransomware
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 470,
+          "y": 175
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "6":
+    id: "6"
+    taskid: 9ac1fa79-325f-45c5-8bda-e43a285aee3e
+    type: title
+    task:
+      id: 9ac1fa79-325f-45c5-8bda-e43a285aee3e
+      version: -1
+      name: End
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 470,
+          "y": 770
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "11":
+    id: "11"
+    taskid: 68024de1-f34d-452c-8307-6f383c683a17
+    type: collection
+    task:
+      id: 68024de1-f34d-452c-8307-6f383c683a17
+      version: -1
+      name: Prompt for Username
+      type: collection
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "1"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 470,
+          "y": 10
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    message:
+      to: null
+      subject: null
+      body:
+        simple: Enter username for Superna lockout
+      methods: []
+      format: ""
+      bcc: null
+      cc: null
+      timings:
+        retriescount: 2
+        retriesinterval: 360
+        completeafterreplies: 1
+        completeafterv2: true
+        completeaftersla: false
+    form:
+      questions:
+      - id: "0"
+        label: ""
+        labelarg:
+          simple: 'Please enter the username to initiate Superna lockout:'
+        required: true
+        gridcolumns: []
+        defaultrows: []
+        type: shortText
+        options: []
+        optionsarg: []
+        fieldassociated: ""
+        placeholder: ""
+        tooltip: ""
+        readonly: false
+      title: Username Prompt
+      description: ""
+      sender: ""
+      expired: false
+      totalanswers: 0
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "12":
+    id: "12"
+    taskid: d3dba91c-fcac-4036-8e3d-ae124545bd65
+    type: playbook
+    task:
+      id: d3dba91c-fcac-4036-8e3d-ae124545bd65
+      version: -1
+      name: Superna Zero Trust User Lockout
+      description: |-
+        This playbook is called from Vectra - Superna Critical Data Protection by User and is used to lock a compromised user to protect critical data.
+
+        USAGE: before using this playbook, input a valid URL and API_KEY
+      playbookName: Superna Zero Trust User Lockout
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    scriptarguments:
+      apiurl:
+        complex:
+          root: ${inputs
+          accessor: username}
+          transformers:
+          - operator: concat
+            args:
+              prefix:
+                value:
+                  simple: https://172.31.1.102/sera/v2/ransomware/lockout/
+              suffix:
+                iscontext: true
+      username:
+        simple: ${Username Prompt.Answers.0}
+    separatecontext: true
+    continueonerrortype: ""
+    loop:
+      iscommand: false
+      exitCondition: ""
+      wait: 1
+      max: 100
+    view: |-
+      {
+        "position": {
+          "x": -250,
+          "y": 370
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "15":
+    id: "15"
+    taskid: ebe8e382-b022-49ec-898a-c74c48e505cd
+    type: playbook
+    task:
+      id: ebe8e382-b022-49ec-898a-c74c48e505cd
+      version: -1
+      name: Superna Zero Trust User Lockout
+      playbookName: Superna Zero Trust User Lockout
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1180,
+          "y": 360
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "16":
+    id: "16"
+    taskid: 6266d8b2-4aa8-472f-830a-4f4d66d77fae
+    type: playbook
+    task:
+      id: 6266d8b2-4aa8-472f-830a-4f4d66d77fae
+      version: -1
+      name: Superna Zero Trust User Lockout
+      playbookName: Superna Zero Trust User Lockout
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 770,
+          "y": 420
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "17":
+    id: "17"
+    taskid: f9f1d7cb-971d-4917-8013-55c1991eb0e5
+    type: playbook
+    task:
+      id: f9f1d7cb-971d-4917-8013-55c1991eb0e5
+      version: -1
+      name: Superna Zero Trust User Lockout
+      playbookName: Superna Zero Trust User Lockout
+      type: playbook
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    separatecontext: true
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 150,
+          "y": 420
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 965,
+        "width": 1810,
+        "x": -250,
+        "y": -130
+      }
+    }
+  }
+inputs: []
+outputs: []
+sourceplaybookid: 24476a0c-a0c0-4869-818a-12eedae5b17b

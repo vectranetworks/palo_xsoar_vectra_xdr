@@ -1,0 +1,245 @@
+id: 56261125-9628-4bff-8685-05c2b29dd2d2
+version: 14
+vcShouldKeepItemLegacyProdMachine: false
+name: EDR Entity Enrichment - Vectra XDR
+description: This playbook will extract the Vectra entity name and search for that
+  entity in Microsoft Defender ATP. If the entity exists in Defender then it will
+  lookup the machine ID and retrieve summary details from Defender. This playbook
+  should be extended as needed to return the desired details from Defender to assist
+  with incident assessment.
+starttaskid: "0"
+tasks:
+  "0":
+    id: "0"
+    taskid: 3cd2ba9e-72b2-4b3f-87ad-53d10f55835f
+    type: start
+    task:
+      id: 3cd2ba9e-72b2-4b3f-87ad-53d10f55835f
+      version: -1
+      name: ""
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "7"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 50
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "1":
+    id: "1"
+    taskid: f73f4d3e-6d71-4d98-85e4-32afa07de24b
+    type: regular
+    task:
+      id: f73f4d3e-6d71-4d98-85e4-32afa07de24b
+      version: -1
+      name: Defender ATP Search
+      description: Retrieves a collection of machines that communicated with WDATP
+        cloud in the last 30 days. Note - only IP or hostname can be a comma-separated
+        list. If both are given as lists, an error will appear.
+      script: '|||microsoft-atp-get-machines'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "4"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 370
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "2":
+    id: "2"
+    taskid: 1c6c3ed8-998e-4340-8bf3-55759fdf0125
+    type: regular
+    task:
+      id: 1c6c3ed8-998e-4340-8bf3-55759fdf0125
+      version: -1
+      name: Get EDR Machine Details
+      description: Get a machine's details by its identity.
+      script: '|||microsoft-atp-get-machine-details'
+      type: regular
+      iscommand: true
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "6"
+    scriptarguments:
+      machine_id:
+        simple: ${EDR.MachineID}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 720
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "4":
+    id: "4"
+    taskid: b53d0844-6422-4409-8ee3-f35f211338e7
+    type: regular
+    task:
+      id: b53d0844-6422-4409-8ee3-f35f211338e7
+      version: -1
+      name: Set Machine ID
+      description: Set a value in context under the key you entered.
+      scriptName: Set
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "2"
+    scriptarguments:
+      key:
+        simple: EDR.MachineID
+      value:
+        complex:
+          root: MicrosoftATP.Machine
+          filters:
+          - - operator: containsGeneral
+              left:
+                value:
+                  simple: MicrosoftATP.Machine.ComputerDNSName
+                iscontext: true
+              right:
+                value:
+                  simple: EDR.Name
+                iscontext: true
+          accessor: ID
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 545
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "6":
+    id: "6"
+    taskid: 9e3a9778-eed9-460a-8bad-5c6d3e2fd1e8
+    type: title
+    task:
+      id: 9e3a9778-eed9-460a-8bad-5c6d3e2fd1e8
+      version: -1
+      name: Done
+      type: title
+      iscommand: false
+      brand: ""
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 895
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "7":
+    id: "7"
+    taskid: 33ffe267-6d30-432c-878c-088c4fbdad4b
+    type: regular
+    task:
+      id: 33ffe267-6d30-432c-878c-088c4fbdad4b
+      version: -1
+      name: Extract Vectra Entity Name
+      description: Set a value in context under the key you entered.
+      scriptName: Set
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "1"
+    scriptarguments:
+      append:
+        simple: "false"
+      key:
+        simple: EDR.Name
+      stringify:
+        simple: "true"
+      value:
+        simple: ${incident.vectraxdrentityname}
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 50,
+          "y": 195
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+view: |-
+  {
+    "linkLabelsPosition": {},
+    "paper": {
+      "dimensions": {
+        "height": 910,
+        "width": 380,
+        "x": 50,
+        "y": 50
+      }
+    }
+  }
+inputs: []
+outputs:
+- contextPath: EDR.MachineID
+  description: The machine ID.
+  type: string
+- contextPath: EDR.Name
+  description: The machine name.
